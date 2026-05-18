@@ -8,10 +8,13 @@
   "files": ["js/", "pkg/"],
   "scripts": {
     "build": "wasm-pack build --target web --out-dir pkg",
-    "build:bundler": "wasm-pack build --target bundler --out-dir pkg"
+    "build:bundler": "wasm-pack build --target bundler --out-dir pkg",
+    "lint": "eslint js/"
   },
   "keywords": ["mermaid", "diagram", "svg", "wasm", "webassembly"],
   "license": "MIT",
   "peerDependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "eslint": "^9.0.0"
+  }
 }

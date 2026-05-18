@@ -41,7 +41,7 @@ export async function initialize(cfg = {}) {
     try {
       const bytes = await fetchFontBytes(config.fontFamily);
       if (bytes) set_font(bytes);
-    } catch (_) { /* font fetch failed — use bundled font */ }
+    } catch { /* font fetch failed — use bundled font */ }
   }
 
   if (config.startOnLoad) {
@@ -86,7 +86,7 @@ export async function run(options = {}) {
     try {
       const { svg } = await render(node.id || 'mermaid', source);
       node.innerHTML = svg;
-    } catch (_) {}
+    } catch { /* render failed — skip node */ }
   }
 }
 

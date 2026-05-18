@@ -73,11 +73,28 @@ jobs:
       - name: Check formatting
         run: cargo fmt --check
 
+  lint-js:
+    name: Lint JS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: ESLint
+        run: npm run lint
+
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
-    needs: [build, lint, fmt]
+    needs: [build, lint, fmt, lint-js]
     steps:
       - uses: actions/checkout@v4
 
