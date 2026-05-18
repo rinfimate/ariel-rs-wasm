@@ -1,0 +1,20 @@
+[package]
+name = "ariel-rs-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "WebAssembly build of ariel-rs — Mermaid JS-compatible SVG diagram rendering in the browser"
+license = "MIT"
+authors = ["Rochanglien Infimate"]
+repository = "https://github.com/rinfimate/ariel-rs-wasm"
+homepage = "https://github.com/rinfimate/ariel-rs-wasm"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+ariel-rs = "0.1.0"
+wasm-bindgen = "0.2"
+
+[profile.release]
+opt-level = "s"
+lto = true

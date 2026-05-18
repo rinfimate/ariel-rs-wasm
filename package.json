@@ -1,0 +1,17 @@
+{
+  "name": "@rinfimate/ariel-rs-wasm",
+  "version": "0.1.0",
+  "description": "WebAssembly Mermaid JS drop-in replacement — headless SVG diagram rendering",
+  "type": "module",
+  "main": "js/index.js",
+  "types": "js/index.d.ts",
+  "files": ["js/", "pkg/"],
+  "scripts": {
+    "build": "wasm-pack build --target web --out-dir pkg",
+    "build:bundler": "wasm-pack build --target bundler --out-dir pkg"
+  },
+  "keywords": ["mermaid", "diagram", "svg", "wasm", "webassembly"],
+  "license": "MIT",
+  "peerDependencies": {},
+  "devDependencies": {}
+}
