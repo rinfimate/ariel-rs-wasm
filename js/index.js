@@ -58,9 +58,17 @@ export async function initialize(cfg = {}) {
 export async function render(id, text) {
   await ensureInit();
   let svg = wasmRender(text, config.theme || 'default');
-  // Replace the hardcoded SVG root id with the caller-supplied id so
+  // Ensure the root <svg> has the caller-supplied id so that
   // document.querySelector(`#${id}`) works after innerHTML injection.
-  svg = svg.replace(/(<svg[^>]*\s)id="[^"]*"/, `$1id="${id}"`);
+  if (svg.includes(`id="${id}"`)) {
+    // already correct
+  } else if (/\sid="[^"]*"/.test(svg.slice(0, svg.indexOf('>')))) {
+    // replace existing id on root svg tag
+    svg = svg.replace(/(\sid=")[^"]*(")/,  `$1${id}$2`);
+  } else {
+    // no id on root svg — inject one
+    svg = svg.replace('<svg ', `<svg id="${id}" `);
+  }
   const diagramType = wasmDetect(text);
   // bindFunctions is a no-op — ariel-rs SVGs are static with no interactions.
   return { svg, bindFunctions: () => {}, diagramType };
