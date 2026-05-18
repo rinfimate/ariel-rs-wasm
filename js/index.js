@@ -1,4 +1,4 @@
-import init, {
+import wasmInit, {
   render as wasmRender,
   try_render as wasmTryRender,
   detect as wasmDetect,
@@ -17,7 +17,7 @@ let config = {
 };
 
 async function ensureInit() {
-  if (!initPromise) initPromise = init();
+  if (!initPromise) initPromise = wasmInit();
   return initPromise;
 }
 
@@ -33,8 +33,10 @@ async function fetchFontBytes(family) {
 
 export async function initialize(cfg = {}) {
   await ensureInit();
-  // Merge config — per-diagram config objects (flowchart, sequence, etc.) are
-  // accepted and stored but not currently forwarded to the renderer.
+  // Merge config — per-diagram config objects (flowchart, sequence, etc.)
+  // are accepted and stored but not forwarded to the renderer.
+  // securityLevel, htmlLabels, suppressErrors are accepted but have no effect —
+  // ariel-rs SVGs are always static and contain no HTML or scripts.
   config = { ...config, ...cfg };
 
   if (config.fontFamily && config.fontFamily !== 'default') {
@@ -56,6 +58,7 @@ export async function initialize(cfg = {}) {
 export async function render(id, text) {
   await ensureInit();
   const svg = wasmRender(text, config.theme || 'default');
+  // bindFunctions is a no-op — ariel-rs SVGs are static with no interactions.
   return { svg, bindFunctions: () => {} };
 }
 
@@ -63,7 +66,7 @@ export async function parse(text) {
   await ensureInit();
   const diagramType = wasmDetect(text);
 
-  // Match Mermaid JS behaviour: throw on Unknown (unrecognised syntax)
+  // Match Mermaid JS behaviour: throw on Unknown (unrecognised diagram type)
   if (diagramType === 'Unknown') {
     throw new Error(`No diagram type detected for: ${text.slice(0, 50)}`);
   }
@@ -78,9 +81,16 @@ export async function parse(text) {
   return { diagramType };
 }
 
+/** Alias for parse() — matches Mermaid JS v10+ API. */
+export async function detectType(text) {
+  await ensureInit();
+  return wasmDetect(text);
+}
+
 export async function run(options = {}) {
   await ensureInit();
-  const nodes = options.nodes || document.querySelectorAll('.mermaid');
+  const selector = options.querySelector || '.mermaid';
+  const nodes = options.nodes || document.querySelectorAll(selector);
   for (const node of nodes) {
     const source = node.textContent || '';
     try {
@@ -88,6 +98,12 @@ export async function run(options = {}) {
       node.innerHTML = svg;
     } catch { /* render failed — skip node */ }
   }
+}
+
+/** @deprecated Use run() instead. */
+export async function init(cfg, selector) {
+  if (cfg) await initialize(cfg);
+  await run({ querySelector: selector });
 }
 
 export function contentLoaded() {
@@ -113,14 +129,15 @@ export default {
   initialize,
   render,
   parse,
+  detectType,
   run,
+  init,
   contentLoaded,
   getConfig,
   reset,
 };
 
 // Auto-process .mermaid elements on import — matches Mermaid JS default behaviour.
-// Users get the CDN drop-in experience with no extra initialization code required.
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => run());
