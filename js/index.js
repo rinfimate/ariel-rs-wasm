@@ -118,3 +118,13 @@ export default {
   getConfig,
   reset,
 };
+
+// Auto-process .mermaid elements on import — matches Mermaid JS default behaviour.
+// Users get the CDN drop-in experience with no extra initialization code required.
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => run());
+  } else {
+    run();
+  }
+}
