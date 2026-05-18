@@ -5,7 +5,7 @@ import wasmInit, {
   set_font,
 } from '../pkg/ariel_rs_wasm.js';
 
-export const version = '0.1.0';
+export const version = '0.1.1';
 
 let initPromise = null;
 let config = {
@@ -57,7 +57,10 @@ export async function initialize(cfg = {}) {
 
 export async function render(id, text) {
   await ensureInit();
-  const svg = wasmRender(text, config.theme || 'default');
+  let svg = wasmRender(text, config.theme || 'default');
+  // Replace the hardcoded SVG root id with the caller-supplied id so
+  // document.querySelector(`#${id}`) works after innerHTML injection.
+  svg = svg.replace(/(<svg[^>]*\s)id="[^"]*"/, `$1id="${id}"`);
   const diagramType = wasmDetect(text);
   // bindFunctions is a no-op — ariel-rs SVGs are static with no interactions.
   return { svg, bindFunctions: () => {}, diagramType };
