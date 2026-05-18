@@ -58,9 +58,23 @@ export async function initialize(cfg = {}) {
 export async function render(id, text) {
   await ensureInit();
   const svg = wasmRender(text, config.theme || 'default');
+  const diagramType = wasmDetect(text);
   // bindFunctions is a no-op — ariel-rs SVGs are static with no interactions.
-  return { svg, bindFunctions: () => {} };
+  return { svg, bindFunctions: () => {}, diagramType };
 }
+
+/** No-op — ariel-rs has built-in layout. Accepted for API compatibility. */
+export function registerLayoutLoaders(_loaders) {}
+
+/** No-op — ariel-rs has built-in diagram support. Returns resolved Promise for API compatibility. */
+export function registerExternalDiagrams(_diagrams) {
+  return Promise.resolve();
+}
+
+/** Partial mermaidAPI surface for compatibility with code that reads defaultConfig. */
+export const mermaidAPI = {
+  defaultConfig: {},
+};
 
 export async function parse(text) {
   await ensureInit();
@@ -135,6 +149,9 @@ export default {
   contentLoaded,
   getConfig,
   reset,
+  registerLayoutLoaders,
+  registerExternalDiagrams,
+  mermaidAPI,
 };
 
 // Auto-process .mermaid elements on import — matches Mermaid JS default behaviour.
