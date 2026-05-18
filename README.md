@@ -1,5 +1,9 @@
 # ariel-rs-wasm
 
+[![CI](https://github.com/rinfimate/ariel-rs-wasm/actions/workflows/ci.yml/badge.svg)](https://github.com/rinfimate/ariel-rs-wasm/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@rinfimate/ariel-rs-wasm.svg)](https://www.npmjs.com/package/@rinfimate/ariel-rs-wasm)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A WebAssembly build of [ariel-rs](https://crates.io/crates/ariel-rs) — a pure-Rust Mermaid diagram renderer. Drop it in as a headless, zero-JS-runtime replacement for the official `mermaid` npm package.
 
 ## What it is
