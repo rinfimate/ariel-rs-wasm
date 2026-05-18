@@ -99,4 +99,4 @@ The compiled output lands in `pkg/`.
 
 ## License
 
-MIT
+MIT © 2026 Rochanglien Infimate
