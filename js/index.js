@@ -1,8 +1,20 @@
-// js/index.js
-import init, { render as wasmRender, try_render as wasmTryRender, detect as wasmDetect, set_font } from '../pkg/ariel_rs_wasm.js';
+import init, {
+  render as wasmRender,
+  try_render as wasmTryRender,
+  detect as wasmDetect,
+  set_font,
+} from '../pkg/ariel_rs_wasm.js';
+
+export const version = '0.1.0';
 
 let initPromise = null;
-let config = { theme: 'default', fontFamily: null };
+let config = {
+  theme: 'default',
+  fontFamily: null,
+  startOnLoad: false,
+  securityLevel: 'strict',
+  logLevel: 'fatal',
+};
 
 async function ensureInit() {
   if (!initPromise) initPromise = init();
@@ -21,12 +33,23 @@ async function fetchFontBytes(family) {
 
 export async function initialize(cfg = {}) {
   await ensureInit();
+  // Merge config — per-diagram config objects (flowchart, sequence, etc.) are
+  // accepted and stored but not currently forwarded to the renderer.
   config = { ...config, ...cfg };
+
   if (config.fontFamily && config.fontFamily !== 'default') {
     try {
       const bytes = await fetchFontBytes(config.fontFamily);
       if (bytes) set_font(bytes);
     } catch (_) { /* font fetch failed — use bundled font */ }
+  }
+
+  if (config.startOnLoad) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => run());
+    } else {
+      await run();
+    }
   }
 }
 
@@ -39,6 +62,19 @@ export async function render(id, text) {
 export async function parse(text) {
   await ensureInit();
   const diagramType = wasmDetect(text);
+
+  // Match Mermaid JS behaviour: throw on Unknown (unrecognised syntax)
+  if (diagramType === 'Unknown') {
+    throw new Error(`No diagram type detected for: ${text.slice(0, 50)}`);
+  }
+
+  // Surface parse errors from try_render as thrown errors
+  try {
+    wasmTryRender(text, config.theme || 'default');
+  } catch (e) {
+    throw new Error(e.message || 'Parse error');
+  }
+
   return { diagramType };
 }
 
@@ -58,4 +94,27 @@ export function contentLoaded() {
   return run();
 }
 
-export default { initialize, render, parse, run, contentLoaded };
+export function getConfig() {
+  return { ...config };
+}
+
+export function reset() {
+  config = {
+    theme: 'default',
+    fontFamily: null,
+    startOnLoad: false,
+    securityLevel: 'strict',
+    logLevel: 'fatal',
+  };
+}
+
+export default {
+  version,
+  initialize,
+  render,
+  parse,
+  run,
+  contentLoaded,
+  getConfig,
+  reset,
+};

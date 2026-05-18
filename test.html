@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ariel-rs-wasm test</title>
+  <style>
+    body { font-family: sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    textarea { width: 100%; height: 120px; font-family: monospace; font-size: 13px; }
+    button { margin-top: 8px; padding: 8px 20px; font-size: 14px; cursor: pointer; }
+    select { margin-left: 10px; padding: 6px; font-size: 14px; }
+    #output { margin-top: 24px; border: 1px solid #ddd; border-radius: 4px; padding: 16px; min-height: 100px; }
+    #status { margin-top: 8px; font-size: 13px; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>ariel-rs-wasm</h1>
+  <p>Local test page — edit the diagram source and click Render.</p>
+
+  <textarea id="source">flowchart TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Process]
+    B -->|No| D[End]
+    C --> D</textarea>
+
+  <div>
+    <button onclick="renderDiagram()">Render</button>
+    <select id="theme">
+      <option value="default">Default</option>
+      <option value="dark">Dark</option>
+      <option value="forest">Forest</option>
+      <option value="neutral">Neutral</option>
+    </select>
+  </div>
+
+  <div id="status">Loading WASM...</div>
+  <div id="output"></div>
+
+  <script type="module">
+    import init, { render, detect } from './pkg/ariel_rs_wasm.js';
+
+    await init();
+    document.getElementById('status').textContent = 'WASM loaded. Ready.';
+
+    window.renderDiagram = function() {
+      const source = document.getElementById('source').value;
+      const theme = document.getElementById('theme').value;
+      const t0 = performance.now();
+      const svg = render(source, theme);
+      const ms = (performance.now() - t0).toFixed(2);
+      const type = detect(source);
+      document.getElementById('status').textContent =
+        `Rendered ${type} in ${ms}ms`;
+      document.getElementById('output').innerHTML = svg;
+    };
+
+    // Render on load
+    window.renderDiagram();
+  </script>
+</body>
+</html>
