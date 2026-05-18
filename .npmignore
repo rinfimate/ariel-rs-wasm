@@ -1,0 +1,11 @@
+# Source and build artefacts not needed by npm consumers
+/target/
+/src/
+Cargo.toml
+Cargo.lock
+.github/
+eslint.config.js
+test.html
+
+# pkg/ is intentionally included (built WASM output)
+# It is gitignored but NOT npmignored
