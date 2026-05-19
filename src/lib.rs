@@ -29,6 +29,14 @@ pub fn detect(input: &str) -> String {
     format!("{:?}", ariel_rs::detect(input))
 }
 
+/// Returns the background colour for the given theme (e.g. "#ffffff" or "#1e1e1e").
+/// Use this to inject a background rect when embedding SVG in a dark host page.
+#[wasm_bindgen]
+pub fn background_color(theme: &str) -> String {
+    let t = parse_theme(theme);
+    t.resolve().background.to_string()
+}
+
 /// Override the bundled font with custom bytes for text measurement.
 /// Call this from JS after fetching a font file.
 #[wasm_bindgen]
