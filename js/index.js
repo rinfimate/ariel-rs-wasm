@@ -55,9 +55,25 @@ export async function initialize(cfg = {}) {
   }
 }
 
+const THEME_BACKGROUNDS = {
+  default: '#ffffff',
+  dark:    '#1e1e1e',
+  forest:  '#ffffff',
+  neutral: '#ffffff',
+};
+
+function injectBackground(svg, theme) {
+  const bg = THEME_BACKGROUNDS[theme] || '#ffffff';
+  const rect = `<rect width="100%" height="100%" fill="${bg}"/>`;
+  const pos = svg.indexOf('>');
+  return pos >= 0 ? svg.slice(0, pos + 1) + rect + svg.slice(pos + 1) : svg;
+}
+
 export async function render(id, text) {
   await ensureInit();
-  let svg = wasmRender(text, config.theme || 'default');
+  const theme = config.theme || 'default';
+  let svg = wasmRender(text, theme);
+  svg = injectBackground(svg, theme);
   // Ensure the root <svg> has the caller-supplied id so that
   // document.querySelector(`#${id}`) works after innerHTML injection.
   if (svg.includes(`id="${id}"`)) {
